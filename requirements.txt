@@ -1,4 +1,0 @@
-﻿spotipy
-streamlit
-gdown
-setuptools
