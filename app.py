@@ -2,39 +2,14 @@ import pickle
 import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import requests
+import gdown
 
-def download_file_from_google_drive(file_id, destination):
-    URL = "https://drive.google.com/uc?export=download"
+file_id = "1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW"
+url = f"https://drive.google.com/uc?id={file_id}"
+output = 'similarity.pkl'
 
-    session = requests.Session()
-
-    response = session.get(URL, params={'id': file_id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {'id': file_id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
-
-    save_response_content(response, destination)
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            return value
-    return None
-
-def save_response_content(response, destination):
-    CHUNK_SIZE = 32768
-
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk:
-                f.write(chunk)
-
-file_id = '1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW'
-destination = 'similarity.pkl'
-download_file_from_google_drive(file_id, destination)
+# Download the file
+gdown.download(url, output, quiet=False)
 
 
 CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
