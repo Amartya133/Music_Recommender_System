@@ -2,19 +2,6 @@ import pickle
 import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import os
-import requests
-
-file_id = '1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW'
-url = f"https://drive.google.com/uc?export=download&id={file_id}"
-
-if not os.path.exists("similarity.pkl"):
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open("similarity.pkl", "wb") as f:
-            f.write(response.content)
-    else:
-        print("Failed to download the file.")
 
 CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
 CLIENT_SECRET = "c2dcf0cf5b084045b839ebba8b075976"
