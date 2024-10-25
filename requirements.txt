@@ -1,3 +1,0 @@
-﻿spotipy
-streamlit
-requests
