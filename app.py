@@ -2,15 +2,6 @@ import pickle
 import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import gdown
-
-file_id = "1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW"
-url = f"https://drive.google.com/uc?id={file_id}"
-output = 'similarity.pkl'
-
-# Download the file
-gdown.download(url, output, quiet=False)
-
 
 CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
 CLIENT_SECRET = "c2dcf0cf5b084045b839ebba8b075976"
@@ -75,12 +66,3 @@ if st.button('Show Recommendation'):
     with col5:
         st.text(recommended_music_names[4])
         st.image(recommended_music_posters[4])
-
-
-
-
-
-
-
-
-
