@@ -6,8 +6,7 @@ import os
 import urllib.request
 
 if not os.path.exists("similarity.pkl"):
-    file_id = "1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW"
-    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    url = "https://drive.google.com/file/d/1VBuqoG5b9XEeY2QHxpdC6SkdlXUdrRvW/view?usp=drive_link"
     urllib.request.urlretrieve(url, "similarity.pkl")
 
 CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
