@@ -103,18 +103,6 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py  
 ```
----
-
-## Project Structure
-
-Music_Recommender_System/
-│
-├── app.py
-├── music.pkl
-├── similarity.pkl
-├── Music_recommender_system.ipynb
-├── requirements.txt
-└── README.md
 
 ---
 
