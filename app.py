@@ -2,6 +2,7 @@ import pickle
 import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.exceptions import SpotifyException
 
 CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
 CLIENT_SECRET = "c2dcf0cf5b084045b839ebba8b075976"
@@ -11,15 +12,21 @@ client_credentials_manager = SpotifyClientCredentials(client_id=CLIENT_ID, clien
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 def get_song_album_cover_url(track_id):
-    track = sp.track(track_id)
 
-    if track and "album" in track and "images" in track["album"]:
-        album_cover_url = track["album"]["images"][0]["url"]
-        print(album_cover_url)
-        return album_cover_url
-    else:
-        # Default image URL if track not found
-        return "https://i.postimg.cc/0QNxYz4V/social.png"
+    try:
+        track = sp.track(track_id)
+
+        if track and track.get("album", {}).get("images"):
+            return track["album"]["images"][0]["url"]
+
+    except SpotifyException as e:
+        print("Spotify Status Code:", e.http_status)
+        print("Spotify Error:", e.msg)
+
+    except Exception as e:
+        print("Error:", e)
+
+    return "https://i.postimg.cc/0QNxYz4V/social.png"
 
 
 def recommend(song):
