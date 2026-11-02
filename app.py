@@ -1,75 +1,96 @@
+
 import pickle
 import streamlit as st
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from spotipy.exceptions import SpotifyException
+import requests
 
-CLIENT_ID = "5fbf8f665a2448c18da93e67c994da46"
-CLIENT_SECRET = "c2dcf0cf5b084045b839ebba8b075976"
-
-# Initialize the Spotify client
-client_credentials_manager = SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
-sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
-def get_song_album_cover_url(track_id):
+# iTunes API album cover retrieval
+@st.cache_data(ttl=86400)
+def get_song_album_cover_url(song_name, artist_name):
 
     try:
-        track = sp.track(track_id)
+        url = "https://itunes.apple.com/search"
 
-        if track and track.get("album", {}).get("images"):
-            return track["album"]["images"][0]["url"]
+        params = {
+            "term": f"{song_name} {artist_name}",
+            "entity": "song",
+            "limit": 5
+        }
 
-    except SpotifyException as e:
-        print("Spotify Status Code:", e.http_status)
-        print("Spotify Error:", e.msg)
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if data["resultCount"] > 0:
+            image_url = data["results"][0].get("artworkUrl100")
+
+            if image_url:
+                return image_url.replace("100x100", "600x600")
 
     except Exception as e:
-        print("Error:", e)
+        print("Album cover error:", e)
 
     return "https://i.postimg.cc/0QNxYz4V/social.png"
 
 
+# Recommendation function
 def recommend(song):
+
     index = music[music['track_name'] == song].index[0]
-    distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
+
+    distances = sorted(
+        list(enumerate(similarity[index])),
+        reverse=True,
+        key=lambda x: x[1]
+    )
+
     recommended_music_names = []
     recommended_music_posters = []
+
     for i in distances[1:6]:
-        # fetch the movie poster
-        track_id = music.iloc[i[0]].track_id
-        print(track_id)
-        print(music.iloc[i[0]].track_name)
-        recommended_music_posters.append(get_song_album_cover_url(track_id))
-        recommended_music_names.append(music.iloc[i[0]].track_name)
 
-    return recommended_music_names,recommended_music_posters
+        song_name = music.iloc[i[0]]['track_name']
+        artist_name = music.iloc[i[0]]['artists']
 
+        print(song_name)
+        print(artist_name)
+
+        poster = get_song_album_cover_url(
+            song_name,
+            artist_name
+        )
+
+        recommended_music_names.append(song_name)
+        recommended_music_posters.append(poster)
+
+    return recommended_music_names, recommended_music_posters
+
+
+# Streamlit application
 st.header('Music Recommender System')
-music = pickle.load(open('music.pkl','rb'))
-similarity = pickle.load(open('similarity.pkl','rb'))
+
+music = pickle.load(open('music.pkl', 'rb'))
+similarity = pickle.load(open('similarity.pkl', 'rb'))
 
 music_list = music['track_name'].values
+
 selected_music = st.selectbox(
     "Type or select a song from the dropdown",
     music_list
 )
 
 if st.button('Show Recommendation'):
-    recommended_music_names,recommended_music_posters = recommend(selected_music)
-    col1, col2, col3, col4, col5= st.columns(5)
-    with col1:
-        st.text(recommended_music_names[0])
-        st.image(recommended_music_posters[0])
-    with col2:
-        st.text(recommended_music_names[1])
-        st.image(recommended_music_posters[1])
 
-    with col3:
-        st.text(recommended_music_names[2])
-        st.image(recommended_music_posters[2])
-    with col4:
-        st.text(recommended_music_names[3])
-        st.image(recommended_music_posters[3])
-    with col5:
-        st.text(recommended_music_names[4])
-        st.image(recommended_music_posters[4])
+    recommended_music_names, recommended_music_posters = recommend(
+        selected_music
+    )
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    columns = [col1, col2, col3, col4, col5]
+
+    for i, col in enumerate(columns):
+
+        with col:
+            st.text(recommended_music_names[i])
+            st.image(recommended_music_posters[i])
