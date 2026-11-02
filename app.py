@@ -1,4 +1,3 @@
-
 import pickle
 import streamlit as st
 import requests
@@ -50,10 +49,12 @@ def recommend(song):
     for i in distances[1:6]:
 
         song_name = music.iloc[i[0]]['track_name']
-        artist_name = music.iloc[i[0]]['artists']
 
-        print(song_name)
-        print(artist_name)
+        # Check whether artist information exists
+        if 'artists' in music.columns:
+            artist_name = music.iloc[i[0]]['artists']
+        else:
+            artist_name = ""
 
         poster = get_song_album_cover_url(
             song_name,
